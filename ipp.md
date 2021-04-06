@@ -1,11 +1,23 @@
 # How to aggregate SNARKs efficiently
 
-This post exposes the inner workings of a practical scheme to aggregate Groth16 proofs, and its application to Filecoin. It first explains what are Groth16 proofs, then explains what is the inner product argument it uses, what is the difference between the original IPP [paper](https://eprint.iacr.org/2019/1177) and our modifications, and then show how to apply it in the context of Groth16 aggregation. This posts ends by showing the performance of our scheme and all optimizations we did to reach that performance.
+This post exposes the inner workings of a practical scheme to aggregate Groth16
+proofs, and its application to Filecoin. It first explains what are Groth16
+proofs, then explains what is the inner product argument it uses, what is the
+difference between the original IPP [paper](https://eprint.iacr.org/2019/1177)
+and our modifications, and then show how to apply it in the context of Groth16
+aggregation. This posts ends by showing the performance of our scheme and all
+optimizations we did to reach that performance.
 
-For the people that just wants the TLDR: our scheme can aggregate 8192 proofs in 12sec, producing a proof which is 38x smaller in size and can be verified in 50ms including serialization, which is 11x faster than batch verification. The scheme can aggregate any power of two number of proofs, leading to higher efficiency gain.
+For the people that just wants the TLDR: our scheme can aggregate 8192 proofs in
+12sec, producing a proof which is 38x smaller in size and can be verified in
+50ms including serialization, which is 11x faster than batch verification. The
+scheme can aggregate any power of two number of proofs, leading to higher
+efficiency gain.
 
 
-This post is not for experienced cryptographers, the goal is that anybody with a high school math level can follow easily. For a more formal description of the scheme, we refer to our [paper](..) (TODO link).
+This post is not for experienced cryptographers, the goal is that anybody with a
+high school math level can follow easily. For a more formal description of the
+scheme, we refer to our [paper](..) (TODO link eprint).
 
 
 ## SNARKs & Scalability
