@@ -58,26 +58,26 @@ The pairing equipped curves (elliptic curves that posses such a pairing map) hav
 The core of the protocol is the inner pairing product argument, a generalization of the inner product argument from [Bootle et al.](https://eprint.iacr.org/2016/263) in the pairing settings. 
 First, let's agree on what the inner product is for two vectors in $\mathbb{F_q^n}$ (vectors of elements in $\mathbb{F_q}$ of length $n$):
 $$
-\lt \mbf{a},\mbf{b} \gt = \sum a_ib_i
+\lt \mathbf{a},\mathbf{b} \gt = \sum a_ib_i
 $$ 
 The inner product argument allows a prover to prove he correctly computed such product to a verifier, **without the verifier to do this computation**. 
-Thanks to the IPP paper, we can also prove an inner product relationship *in the exponent*. For example, the following is an inner product "in the exponent" between a vector $\mbf{C} = \{G^{c_i}\}$ and a vector $\mbf{r} \in \mathbb{F_q^n}$, which we later call a MIPP relation:
+Thanks to the IPP paper, we can also prove an inner product relationship *in the exponent*. For example, the following is an inner product "in the exponent" between a vector $\mathbf{C} = \{G^{c_i}\}$ and a vector $\mathbf{r} \in \mathbb{F_q^n}$, which we later call a MIPP relation:
 $$
-<\mbf{C},\mbf{r}> = \prod C_i^{r_i} = \prod G^{c_i r_i} = G^{\sum c_i r_i}
+<\mathbf{C},\mathbf{r}> = \prod C_i^{r_i} = \prod G^{c_i r_i} = G^{\sum c_i r_i}
 $$
-Another example called TIPP, is using the pairing operation so the inner product happens in the exponent between two vectors $\mbf{A} \in \mathbb{G_1^n}$ and $\mbf{B} \in \mathbb{G_2^n}$:
+Another example called TIPP, is using the pairing operation so the inner product happens in the exponent between two vectors $\mathbf{A} \in \mathbb{G_1^n}$ and $\mathbf{B} \in \mathbb{G_2^n}$:
 $$
-\lt \mbf{A},\mbf{B} \gt = \prod e(G^a_i,H^b_i) = \prod e(G,H)^{a_i*b_i} = e(G,H)^{\sum a_i*b_i}
+\lt \mathbf{A},\mathbf{B} \gt = \prod e(G^a_i,H^b_i) = \prod e(G,H)^{a_i*b_i} = e(G,H)^{\sum a_i*b_i}
 $$ 
 In fact, the paper generalizes the scheme to allow extended variants of such computations called *inner product maps*, which satisfy the same bilinear properties as the classical inner product over integers: 
 $$
-<\mbf{a} + \mbf{b}, \mbf{c} + \mbf{d}> = <\mbf{a},\mbf{c}>+<\mbf{a},\mbf{d}> + <\mbf{b},\mbf{c}> + <\mbf{b},\mbf{d}>
+<\mathbf{a} + \mathbf{b}, \mathbf{c} + \mathbf{d}> = <\mathbf{a},\mathbf{c}>+<\mathbf{a},\mathbf{d}> + <\mathbf{b},\mathbf{c}> + <\mathbf{b},\mathbf{d}>
 $$
 The scheme is called GIPA for Generalized Inner Product Argument.
 
 
 ### Generalized Inner Product Argument (GIPA)
-$\newcommand{\mbf}[1]{\mathbf{#1}}$
+$\newcommand{\mathbf}[1]{\mathbf{#1}}$
 Let's first see a small example to understand the principles behind GIPA.
 
 #### Example
@@ -162,7 +162,7 @@ Let's make a few observations from this diagram.
 
 We can see the protocol runs in a recursive loop. At each step of the loop, $\mathbf{A}$ and $\mathbf{B}$  **and** the **commitment keys size are halving** in size, the variable $m$ tracks the current size. The "compressed" vectors and keys are passed into the same procedure until we reach a length of 1. This explains the logarithmic nature of the scheme (there are $log(2^k)=k$ steps)! 
 We can observe similarities with the small example shown in the previous section:
-* $z_l =  \lt \mbf{a}_{[m':]},\mbf{b}_{[:m']} \gt  = \prod e(A_{m' + i},B_{i})$ is the left cross product $l$
+* $z_l =  \lt \mathbf{a}_{[m':]},\mathbf{b}_{[:m']} \gt  = \prod e(A_{m' + i},B_{i})$ is the left cross product $l$
 * $z_r = \prod\limits_{i=0}^{m'} e(A_{i},B_{m' + i})$ is the right cross product $r$
 * $a' = \sum\limits_{i=0}^{m'} a_{i} + xa_{m' + i}$ is the "compression" of the $\mathbf{A}$ vector (size halves after this step)
 * $b' = \sum\limits_{i=0}^{m'} b_{i} + x^{-1}b_{m' + i}$ is the "compression" of the $\mathbf{B}$ vector (size halves after this step)
@@ -199,7 +199,7 @@ Note the commitment keys structure: they only contain even powers and the maximu
 
 Lets try to plug this into GIPA verifier code and see the concrete changes from the generic GIPA. For the sake of succintness, we only look at the verifier part here.
 
-Recall that the verifier gets as input the original commitment $C = CM((\mbf{V},\mbf{W},1), \mbf{A},\mbf{B},\prod e(A_i,B_i)) = (C_1,C_2,C_3)$. There are two main instructions for the verifier. The first one compresses the commitment:
+Recall that the verifier gets as input the original commitment $C = CM((\mathbf{V},\mathbf{W},1), \mathbf{A},\mathbf{B},\prod e(A_i,B_i)) = (C_1,C_2,C_3)$. There are two main instructions for the verifier. The first one compresses the commitment:
 $$
 C = C_l^x * C * C_r^{x^{-1}}
 $$
@@ -222,8 +222,8 @@ e(A,V) == C_1 \\
 e(W,B) == C_2 \\
 e(A,B) == C_3
 $$
-where $A$, $B$ are the last compressed single values of $\mbf{A}$ and $\mbf{B}$ and $V$ and $W$ are the last compressed commitment keys (length 1 as well).
-The first and second checks are verifying that the commitments to $\mbf{A}$ and $\mbf{B}$ have been correctly compressed at each step. The final check is verifying if the inner pairing product have been correctly computed, as in our first toy example!
+where $A$, $B$ are the last compressed single values of $\mathbf{A}$ and $\mathbf{B}$ and $V$ and $W$ are the last compressed commitment keys (length 1 as well).
+The first and second checks are verifying that the commitments to $\mathbf{A}$ and $\mathbf{B}$ have been correctly compressed at each step. The final check is verifying if the inner pairing product have been correctly computed, as in our first toy example!
 
 
 ### Trusted Setup
@@ -244,11 +244,11 @@ Note that it also requires a power twice as high as Groth16's SRS.
 We could make of course a new trusted setup, but we wanted to rely on the same security assumptions as of today and running a trusted setup is an expensive and long process we wanted to avoid.
 
 One idea we had is that we could use two Groth16 SRS, for example the one from Filecoin and Zcash together, so we end up with two hidden exponent $\alpha$ and $\beta$. This was actually our first thought but **this would have been totally insecure**! Indeed, with two Groth16 SRS we would have $(G^\beta)^i$ and $(H^\beta)^i$  for $i:0 \rightarrow n$ while in our commitment scheme SRS, the verifying key only contains terms of the form $H^{\beta^{2i}}$, where the exponent of $\beta$ is even.  In other words, given an SRS constructed from two Groth16 SRS, **the binding property is broken**. Let's see an example where we can devise two different messages that map to the same commitment.
-The commitment of the vector $\mbf{A} = \{(G^{\beta^2})^x, G^y\}$ is:
+The commitment of the vector $\mathbf{A} = \{(G^{\beta^2})^x, G^y\}$ is:
 $$
 C_{A} = \prod e(A_i,V_i) = e(G^{\beta^2 x},H)e(G^y,H^{\beta^2}) = e(G,H)^{\beta^2 x + \beta^2 y}
 $$
-The commitment of a second vector $\mbf{A'} = \{(G^{\beta^2})^y,G^x\}$ is:
+The commitment of a second vector $\mathbf{A'} = \{(G^{\beta^2})^y,G^x\}$ is:
 $$
 C_{A'} = \prod e(A_i',V_i) = e(G^{\beta^2 y},H)e(G^x,H^{\beta^2}) = e(G,H)^{\beta^2 y + \beta^2 x} = C_{A}
 $$
@@ -258,7 +258,7 @@ Here the prover had access to $G^{\beta^2}$ from the Groth16 SRS which enabled h
 
 Here is its description:
 $$
-ck = (\mbf{V_1},\mbf{V_2},\mbf{W_1},\mbf{W_2}) \textrm{ where} \\
+ck = (\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2}) \textrm{ where} \\
  \mathbf{V_1} = \{H^{\alpha^{i}}\}_{i=0}^{n-1}, \mathbf{V_2} =\{H^{\beta^{i}}\}_{i=0}^{n-1}) \\
 \mathbf{W_1} = \{G^{\alpha^{n + i}}\}_{i=0}^{n-1}, \mathbf{W_2} = \{G^{\beta^{n + i}}\}_{i=0}^{n-1}) \\
 m = (\mathbf{A} \in \mathbb{G_1^n},\mathbf{B} \in \mathbb{G_2^n},\prod e(A_i,B_i) \in \mathbb{G_t})
@@ -278,7 +278,7 @@ $$
 
 We can make a couple of observation here:
 1. It requires indeed 4 commitment "keys" $(\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2})$ instead of 2 as in the previous commitment scheme. Both $\mathbf{V_1}$ and $\mathbf{W_1}$ can be created using one transcript of a Groth16 trusted setup and the second pair using another trusted setup transcript. 
-2. We commit to $\mbf{A}$ and $\mbf{B}$ together, using both pairs of commitment keys. This leads us to use both of the secret exponents from both trusted setup and therefore gains the security property (blinding) of our scheme.
+2. We commit to $\mathbf{A}$ and $\mathbf{B}$ together, using both pairs of commitment keys. This leads us to use both of the secret exponents from both trusted setup and therefore gains the security property (blinding) of our scheme.
 3. The keys $\mathbf{W_1},\mathbf{W_2}$ are *shifted* by $n$, the powers in the exponent go from $n$ to $2n-1$. Note this means both Groth16 transcripts must have *twice the size* of the number of proofs you want to aggregate ($n$) as the exponent goes to $2n-1$. In practice it is not a big deal since the transcripts existing starts at $2^{21}$ (zcash) so the maximum number of proofs we can aggregate using these is more than 1 millions proofs already.
 4. Note the third component of the message is also the third component of the commitment scheme output, as it was the case in the first TIPP example.
 
@@ -293,16 +293,16 @@ The trick to get the verifier to only perform a logarithmic amount of work when 
 
 To understand the trick let's make a small example. let's define our commitment key as
 $$
-\mbf{V} = \{V_1,V_2,V_3,V_4\} = \{H,H^\alpha,H^{\alpha^2},H^{\alpha^3}\} 
+\mathbf{V} = \{V_1,V_2,V_3,V_4\} = \{H,H^\alpha,H^{\alpha^2},H^{\alpha^3}\} 
 $$
 We define $n = 4$ and $l = log(n) = 2$. 
-Let's run the GIPA loop twice (since $log(n) = 2$). During the first iteration, we derive a challenge $x_0$ and compress $\mbf{V}$ into:
+Let's run the GIPA loop twice (since $log(n) = 2$). During the first iteration, we derive a challenge $x_0$ and compress $\mathbf{V}$ into:
 $$
-\mbf{V'} = \{H * H^{x_0\alpha^2}, H^\alpha  * H^{x_0\alpha^3} \} = \{V_1^{1 + x_0\alpha^2}, V_2^{1 + x_0\alpha^2}\} = \{V_1',V_2'\}
+\mathbf{V'} = \{H * H^{x_0\alpha^2}, H^\alpha  * H^{x_0\alpha^3} \} = \{V_1^{1 + x_0\alpha^2}, V_2^{1 + x_0\alpha^2}\} = \{V_1',V_2'\}
 $$
 For the second and final iteration, we derive the challenge $x_1$ and compress further:
 $$
-\mbf{V'} = V_1' + V_2'^{x_1} = H^{(1 + x_0\alpha^2) + \alpha(1 + x_0\alpha^2)x_1} = H^{1 + x_0\alpha^2 + \alpha x_1 + \alpha^3 x_0x_1 }
+\mathbf{V'} = V_1' + V_2'^{x_1} = H^{(1 + x_0\alpha^2) + \alpha(1 + x_0\alpha^2)x_1} = H^{1 + x_0\alpha^2 + \alpha x_1 + \alpha^3 x_0x_1 }
 $$
 The trick is that we can represent **the elements in the exponent into a logarithmically sized product** ! Let's only look at the exponents:
 $$
@@ -324,7 +324,7 @@ Given there are already lots of ressources on KZG commitments, we invite you to 
 
 To use this trick, the prover perform the following steps: 
 1. At the end of GIPA, it derives a random challenge $z$ via a hash function.
-    * It hashes the last commitment key value $\mbf{V}$
+    * It hashes the last commitment key value $\mathbf{V}$
 3. Computes an KZG opening for $f(z)$. Precisely, it computes $H^{f(alpha) - f(z) / (alpha - z)}$
 4. Sends the opening and the last commitment key to the verifier
 
@@ -334,19 +334,19 @@ The verifier do the following:
 1. Verifies all GIPA checks
 2. Recompute the challenge $z$ (it can do so because it has the last commitment keys from the prover) 
 3. Evaluate $f(z)$ using the formula described at the previous section
-4. Verifies the KZG opening at the point $z$ with the basis being the last commitment key $\mbf{V}$ !
+4. Verifies the KZG opening at the point $z$ with the basis being the last commitment key $\mathbf{V}$ !
 
 If the opening at a random point verifies, it means that the polynomial $f$ has been computed correctly with high proabibility and therefore that the final commitment keys are correct!
 
-**Note the verifier must do this for both $\mbf{V_1}$, $\mbf{V_2}$, $\mbf{W_1}$ and $\mbf{W_2}$ for TIPP**; he must verify 4 openings in total for TIPP .
+**Note the verifier must do this for both $\mathbf{V_1}$, $\mathbf{V_2}$, $\mathbf{W_1}$ and $\mathbf{W_2}$ for TIPP**; he must verify 4 openings in total for TIPP .
 
 ## Multiexponentiation Inner Pairing Product (MIPP)
 
 For Groth16 aggregation, we are going to need to prove the relation $Z = \sum_{i=0}^{n-1} C_i^{r_i}$ which is a multiexponentiation product. We can do this with GIPA simply by changing the commitment scheme!
 $$
-m = (\mbf{C} \in \mathbb{G_1^n}, \mbf{r} \in \mathbb{F_r}, \sum_{i=0}^{n-1} C_i^{r_i}) \\
-ck = (\mbf{V} = \{H^{\alpha^i}\}_{i=0}^{n-1} \in \mathbb{G_2^n}, \mbf{1} \in \mathbb{F_r^n}, 1 \in \mathbb{G_t}) \\
-CM_{m}(ck,m) = (\prod e(C_i,V_i), \mbf{r}, \sum_{i=0}^{n-1} C_i^{r_i})
+m = (\mathbf{C} \in \mathbb{G_1^n}, \mathbf{r} \in \mathbb{F_r}, \sum_{i=0}^{n-1} C_i^{r_i}) \\
+ck = (\mathbf{V} = \{H^{\alpha^i}\}_{i=0}^{n-1} \in \mathbb{G_2^n}, \mathbf{1} \in \mathbb{F_r^n}, 1 \in \mathbb{G_t}) \\
+CM_{m}(ck,m) = (\prod e(C_i,V_i), \mathbf{r}, \sum_{i=0}^{n-1} C_i^{r_i})
 $$
 
 Here as well, the prover is already computing the value $Z$ before calling $CM$ except the second commitment key is simply a vector of 1s. The security proof of why this is binding can be found in the paper.
@@ -372,15 +372,15 @@ Let's define some of these terms:
 
 ### Groth16 Aggregated Verification
 
-We can actually combine multiple verifications, from differents proofs represented as vectors $(\mbf{A},\mbf{B}, \mbf{C})$  and different public inputs $\mbf{a}$ into one. The way to do this is to make a **random linear combination** of each of the parts of the equation. The reason we must perform a random linear combination is to avoid the aggregator to find some combinations of proof that makes the verification pass while some of them are invalid. By randomizing the combination, probability to pass verification with invalid proofs becomes negligible. It is a common trick in cryptography.
+We can actually combine multiple verifications, from differents proofs represented as vectors $(\mathbf{A},\mathbf{B}, \mathbf{C})$  and different public inputs $\mathbf{a}$ into one. The way to do this is to make a **random linear combination** of each of the parts of the equation. The reason we must perform a random linear combination is to avoid the aggregator to find some combinations of proof that makes the verification pass while some of them are invalid. By randomizing the combination, probability to pass verification with invalid proofs becomes negligible. It is a common trick in cryptography.
 
-Let's define $\mbf{r} = (1,r,r^2,r^3,\dots,r^{n-1})$ a structured vector from a random $r$ element. The **randomized verification equation** is:
+Let's define $\mathbf{r} = (1,r,r^2,r^3,\dots,r^{n-1})$ a structured vector from a random $r$ element. The **randomized verification equation** is:
 $$
 \prod e(A_i,B_i^{r_i}) = e(G^{\alpha \sum_{i=0}^{n-1} r^i} ,H^\beta)\cdot e(\prod_i S_i^{ \sum_{j=0}^{n-1} a_{i,j}},H^\delta) \cdot e(\prod_i C_i^{r^i}, H^{\delta })
 $$
 
 The left part is clearly a random linear combination since each $A_i$ is combined with a $B_i$ scaled by the corresponding $r_i$
-The left-most part of the right side is also a random linear combination. Let's look at a simple example. We would like to make a random linear combination of elements of the form $e(G^\alpha,H^\beta)$, we can do so via the vector $\mbf{r}$ like this
+The left-most part of the right side is also a random linear combination. Let's look at a simple example. We would like to make a random linear combination of elements of the form $e(G^\alpha,H^\beta)$, we can do so via the vector $\mathbf{r}$ like this
 $$
 e(G^\alpha,H^\beta)^{r_0} * e(G^\alpha,H^\beta)^{r_1} = e(G,H)^{\alpha r_0 \beta} *e(G,H)^{\alpha r_1 \beta} \textrm{    (1)}\\= e(G,H)^{\alpha r_0 \beta + \alpha r_1 \beta} = e(G,H)^{\alpha (r_0 + r_1)\beta } \textrm{   (2)}= e(G^{\alpha \sum_i r_i},H^\beta)
 $$
@@ -394,44 +394,44 @@ We leave the others parts as exercise to the reader to show they are linear comb
 
 Finally we are able to put all the pieces together! As you can see there are similarities between what the Groth16 aggregated verification requires and what we've seen we can do with GIPA and TIPP.
 
-Indeed, the prover can prove the value $Z = \prod e(A_i,B_i^{r_i})$ via TIPP using the vectors $\mbf{A}$ and $\mbf{B^r}$! 
-Wait...where this $\mbf{r}$ vector comes from ? Because we want this proof to be *non-interactive*, we can't ask the verifier to sample it. Instead, this $r$ is derived from the *commitments of the vectors* $\mbf{A},\mbf{B}$ and $\mbf{C}$, using again the Fiat-Shamir heuristic. 
+Indeed, the prover can prove the value $Z = \prod e(A_i,B_i^{r_i})$ via TIPP using the vectors $\mathbf{A}$ and $\mathbf{B^r}$! 
+Wait...where this $\mathbf{r}$ vector comes from ? Because we want this proof to be *non-interactive*, we can't ask the verifier to sample it. Instead, this $r$ is derived from the *commitments of the vectors* $\mathbf{A},\mathbf{B}$ and $\mathbf{C}$, using again the Fiat-Shamir heuristic. 
 $$
-r = Hash(CM_t(\mbf{V_1},\mbf{V_2},\mbf{W_1},\mbf{W_2},\mbf{A},\mbf{B}),CM_m(\mbf{V_1},\mbf{V_2},\mbf{C})
+r = Hash(CM_t(\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2},\mathbf{A},\mathbf{B}),CM_m(\mathbf{V_1},\mathbf{V_2},\mathbf{C})
 $$
 Note here the third component of the commitment scheme is excluded, since we only want to compute the commitment of the individual vectors, not to their product. See next section for understanding why.
 
 ### Rescaled commitment keys
 
-$Z = \prod e(A_i,B_i^{r_i})$ is the third input to the commitment scheme. That means we should also input $\mbf{B^r}$ as the input vector for TIPP right ? However that causes a problem here:  we can't define $\mbf{B^r}$ without the commitment of $\mbf{A}$ and $\mbf{B}$ necessary to create $r$ and we can't use $\mbf{B}$ if we use $\mbf{B^r}$ as the third input...
+$Z = \prod e(A_i,B_i^{r_i})$ is the third input to the commitment scheme. That means we should also input $\mathbf{B^r}$ as the input vector for TIPP right ? However that causes a problem here:  we can't define $\mathbf{B^r}$ without the commitment of $\mathbf{A}$ and $\mathbf{B}$ necessary to create $r$ and we can't use $\mathbf{B}$ if we use $\mathbf{B^r}$ as the third input...
 
-The solution to that is to use a **rescaled commitment key** $\mbf{W'} = \mbf{W^{r^{-1}}}$. Thanks to the property of the commitment scheme, the $r$ component will cancel out. Here is one part of the commitment to show how it behaves:
+The solution to that is to use a **rescaled commitment key** $\mathbf{W'} = \mathbf{W^{r^{-1}}}$. Thanks to the property of the commitment scheme, the $r$ component will cancel out. Here is one part of the commitment to show how it behaves:
 $$
 \prod e(A_i,V_i)e(B_i^{r_i},W_i^{r_i^{-1}}) = \prod e(A_i,V_i)e(B_i,W_i)^{r_ir_i^{-1}} = \prod e(A_i,V_i)e(B_i,W_i)
 $$
 
-This solves our problem: we can commit normally to $\mbf{B}$ and then we use a rescaled commitment key $(\mbf{w_1^{r^{-1}}},\mbf{w_2^{r^{-1}}})$ in combination with the $\mbf{B^r}$ vector in $Z$ for TIPP!
+This solves our problem: we can commit normally to $\mathbf{B}$ and then we use a rescaled commitment key $(\mathbf{w_1^{r^{-1}}},\mathbf{w_2^{r^{-1}}})$ in combination with the $\mathbf{B^r}$ vector in $Z$ for TIPP!
 
 ### Groth16 Aggregation Protocol
 
 Let's show the whole prover protocol now:
 
-1. Compute the commitments to $\mbf{A}$ and $\mbf{B}$ together using the commitment scheme of TIPP
-    +  $(T_{AB}, U_{AB},\perp) = CM_t((\mbf{V_1},\mbf{V_2},\mbf{W_1},\mbf{W_2},1),\mbf{A},\mbf{B},\perp)$ 
-2. Compute the commitments to $\mbf{C}$ using the commitment scheme of MIPP
-    + $(T_{C},U_{C},\perp) = CM_m((\mbf{V_1},\mbf{V_2},\perp),\mbf{C},\mbf{r},\perp)$
-3. Derive $r = Hash(T_{AB},U_{AB},T_{C},U_{C})$ and then $\mbf{r} = (1,r^2,\dots,r^{n-1})$
+1. Compute the commitments to $\mathbf{A}$ and $\mathbf{B}$ together using the commitment scheme of TIPP
+    +  $(T_{AB}, U_{AB},\perp) = CM_t((\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2},1),\mathbf{A},\mathbf{B},\perp)$ 
+2. Compute the commitments to $\mathbf{C}$ using the commitment scheme of MIPP
+    + $(T_{C},U_{C},\perp) = CM_m((\mathbf{V_1},\mathbf{V_2},\perp),\mathbf{C},\mathbf{r},\perp)$
+3. Derive $r = Hash(T_{AB},U_{AB},T_{C},U_{C})$ and then $\mathbf{r} = (1,r^2,\dots,r^{n-1})$
     * This steps enforce that $r$ is random and therefore the prover can not trick the linear combination.
-4. Compute $\mbf{B^r}$ and $\mbf{W_1'} = \mbf{W_1^{r^{-1}}}$ and $\mbf{W_2'} = \mbf{W_2^{r^{-1}}}$
+4. Compute $\mathbf{B^r}$ and $\mathbf{W_1'} = \mathbf{W_1^{r^{-1}}}$ and $\mathbf{W_2'} = \mathbf{W_2^{r^{-1}}}$
 5. Compute $Z_{AB} = \prod e(A_i,B_i^{r_i})$ as third input to TIPP
 6. Compute $Z_{C} = \prod C_i^{r_i}$
     * Note here we don't need to rescale anything, since $r$ is part of input vectors of the commitment scheme of MIPP
 8. Compute the TIPP proof $\pi_t$ with 
-    * Inputs $\mbf{A}$, $\mbf{B^r}$ and $Z_{AB}$
-    * Commitment keys $(\mbf{V_1},\mbf{V_2},\mbf{W_1'},\mbf{W_2'})$
+    * Inputs $\mathbf{A}$, $\mathbf{B^r}$ and $Z_{AB}$
+    * Commitment keys $(\mathbf{V_1},\mathbf{V_2},\mathbf{W_1'},\mathbf{W_2'})$
 9. Compute the MIPP proof $\pi_m$ with
-    * Inputs $\mbf{C}$, $\mbf{r}$ and $Z_C$
-    * Commitment keys $(\mbf{V_1}, \mbf{V_2})$
+    * Inputs $\mathbf{C}$, $\mathbf{r}$ and $Z_C$
+    * Commitment keys $(\mathbf{V_1}, \mathbf{V_2})$
 10. Output $\pi = (\pi_t, \pi_m, T_{AB},U_{AB}, T_{C},U_{C},Z_{AB}, Z_{C})$
     * The last two elements are required for verifying the Groth16 equation
     * The four previous ones are required for the verifier to derive $r$ 
@@ -475,7 +475,7 @@ This gave us **orders of magnitude faster verification.**
 
 #### Merging TIPP and MIPP
 
-As you can see, TIPP and MIPP are very similar except for the commitment scheme. Specifically, both $\mbf{A}$ and $\mbf{C}$ are committed with respect to the keys $\mbf{v_1}$ and $\mbf{v_2}$. Therefore, we can run **one GIPA loop for both TIPP and MIPP**. The crucial point here is to make sure the random challenge depends on both inputs from MIPP and TIPP. By re-using GIPA terminology, our random challenge at the $i$th iteration is now:
+As you can see, TIPP and MIPP are very similar except for the commitment scheme. Specifically, both $\mathbf{A}$ and $\mathbf{C}$ are committed with respect to the keys $\mathbf{v_1}$ and $\mathbf{v_2}$. Therefore, we can run **one GIPA loop for both TIPP and MIPP**. The crucial point here is to make sure the random challenge depends on both inputs from MIPP and TIPP. By re-using GIPA terminology, our random challenge at the $i$th iteration is now:
 $$
  x_i = Hash(TIPP(z_l,z_r,C_l,C_r),MIPP(z_l,z_r,C_l,C_r))
 $$
