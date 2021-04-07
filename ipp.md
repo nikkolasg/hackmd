@@ -529,7 +529,7 @@ e(A,B)e(-C,D)e(E,F) == 1 * T <=> FE(ML((A,B),(-C,D),(E,F))) == T
 $$
 We can see here that we do only one miller loop and one final exponentiation !
 However, this would be **insecure** as the prover might be able to pick values $E$ and
-$F£ such that $e(A,B)e(-C,D) == e(E,F)$ where the individual values don't
+$F£ such that $e(A,B)e(-C,D)e(E,F) == T$ where the individual values don't
 satisfy the original equations we wanted to check !
 The usual way to solve this problem, as in the Groth16 aggregation, is to use a
 random linear combination ! We scale each pairing check by a random element $r$
