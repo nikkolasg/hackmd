@@ -487,29 +487,67 @@ During our benchmarks, we observed a **gain of 20-30% percent in verification ti
 
 The proof contains mostly $\mathbb{G_t}$ elements, which are the largest elements, currently 288 bytes. We implemented compressions on those points using algorithms derived from Diego F. Aranha's [RELIC library](https://github.com/relic-toolkit/relic) which gives us a 50% size reduction. The cost of unserializing increases a bit but is negligible when verifiying the proof. You can find the specific implementation in this [branch](https://github.com/filecoin-project/blstrs/compare/feat-compression). This  led to a **40% reduction in proof size**. 
 
-#### Pairing Checks
+#### Compressing Pairing Checks
 
 A pairing check is when one must compute two pairings and verify if they are equal:
 $$
 e(A,B) == e(C,D)
 $$
 
-However, a pairing is actually two algorithms in one:
+However, a pairing is actually two algorithms run consecutively:
 $$
 e(A,B) = FinalExponentation(MillerLoop(A,B))
 $$
-The Miller loop returns a point on $\mathbb{F_{p^{12}}}$, and is able to do the computation on any number of *pairs* of points at once. FinalExponentiation maps the $\mathbb{F_{p^{12}}}$ point to the right subgroup called $G_t$. As it turns out, **the most expensive operation is the final exponentation**.
+The Miller loop returns a point on $\mathbb{F_{p^{12}}}$, and is able to do the
+computation on any number of *pairs* of points at once. FinalExponentiation maps
+the $\mathbb{F_{p^{12}}}$ point to the right subgroup called $G_t$. As it turns
+out, **the most expensive operation is the final exponentation** because the
+exponent is large. For the rest of the document, $FE$ represents the
+FinalExponentiation and $ML$ the MillerLoop.
 
-One easy way to reduce the computation required for a pairing check is to (1) use the *negation* of one side and (2) perform the MillerLoop on both pairs of points, then the FinalExponentiation on the result. We can easily then check if the result is "one":
+One easy way to reduce the computation required for a pairing check is to (1)
+use the *negation* of one side and (2) perform the MillerLoop on both pairs of
+points, then the FinalExponentiation on the result. We can easily then check if
+the result is "one":
 $$
-e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == 1
+e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == FE(ML((A,B),(-C,D))) == 1
 $$
-This allows us to only perform one Miller loop and one FinalExponentation instead of two.
+This allows us to only perform one Miller loop and one FinalExponentation
+instead of two.
 
+We can actually generalize this trick to any number of pairing checks. Let's
+suppose we have the following checks to do:
+* $e(A,B) = e(C,D)$ which is equivalent to $e(A,B)e(-C,D) = 1$
+* $e(E,F) = T$ for a given value $T \in \mathbb{G_t}$
+We could write directly:
+$$
+e(A,B)e(-C,D)e(E,F) == 1 * T <=> FE(ML((A,B),(-C,D),(E,F))) == T
+$$
+We can see here that we do only one miller loop and one final exponentiation !
+However, this would be **insecure** as the prover might be able to pick values $E$ and
+$F£ such that $e(A,B)e(-C,D) == e(E,F)$ where the individual values don't
+satisfy the original equations we wanted to check !
+The usual way to solve this problem, as in the Groth16 aggregation, is to use a
+random linear combination ! We scale each pairing check by a random element $r$
+chosen by the verifier, during verification time:
+$$
+e(A,B)e(-C,D)(e(E,F))^r == 1 * T^r  <=> e(A,B)e(-C,D)e(E^r,F) == T^r \\
+FE(ML((A,B),(-C,D)) * ML(E^r,F)) == T^r
+$$
+You can see here we scale the second check by $r$: the point $E$ is scaled by
+$r$ since it is much more efficient to do scalar multiplication in
+$\mathbb{G_1}$ than in $\mathbb{G_t}$. As well we split into two MillerLoop
+since it is not parallelizable so we prefer to run all these one in parallel and
+perform the FinalExponentiation at the end.
+Using such randomization, the attacker has a negligible probability of finding
+points that satisfy $e(A,B)e(-C,D) == e(E,F)^r$ since he doesn't know $r$ in
+advance - he never knows it, it's a locally generated random element by the
+verifier. 
 
-
-
-The verification algorithm must verify up to 14 pairing checks. Instead of verifying all of them individually, our implementation only **performs the Miller loop step on each of them** and combine their results into one $\mathbb{Fp12}$ element. At the end of the verification routine, the **verifier only performs one FinalExponentation, instead of 14**. We were able to significantly gain hundreds of ms thanks to these optimizations. You can find the general logic in the `Accumulator` [struct](https://github.com/filecoin-project/bellperson/blob/feat-aggregation/src/groth16/aggregate/accumulator.rs). The reason why we are not doing one big MillerLoop with all the pairs, is because our MillerLoop implementation does not benefit from multithreading so after a certain input size, it is faster to operate two or more MillerLoop in parallel.
+At the end of the verification routine, the **verifier only performs one
+FinalExponentation, instead of 14**. We were able to significantly gain hundreds
+of ms thanks to these optimizations. You can find the general logic in the
+`PairingCheck` [struct](https://github.com/filecoin-project/bellperson/blob/feat-aggregation/src/groth16/aggregate/accumulator.rs).
 
 ## Conclusion
 
