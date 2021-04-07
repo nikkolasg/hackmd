@@ -510,6 +510,7 @@ One easy way to reduce the computation required for a pairing check is to (1)
 use the *negation* of one side and (2) perform the MillerLoop on both pairs of
 points, then the FinalExponentiation on the result. We can easily then check if
 the result is "one":
+
 $$
 e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == FE(ML((A,B),(-C,D))) == 1
 $$
