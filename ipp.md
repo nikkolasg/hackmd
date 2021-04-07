@@ -498,6 +498,7 @@ However, a pairing is actually two algorithms run consecutively:
 $$
 e(A,B) = FinalExponentation(MillerLoop(A,B))
 $$
+
 The Miller loop returns a point on $\mathbb{F_{p^{12}}}$, and is able to do the
 computation on any number of *pairs* of points at once. FinalExponentiation maps
 the $\mathbb{F_{p^{12}}}$ point to the right subgroup called $G_t$. As it turns
@@ -512,6 +513,7 @@ the result is "one":
 $$
 e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == FE(ML((A,B),(-C,D))) == 1
 $$
+
 This allows us to only perform one Miller loop and one FinalExponentation
 instead of two.
 
@@ -519,6 +521,7 @@ We can actually generalize this trick to any number of pairing checks. Let's
 suppose we have the following checks to do:
 * $e(A,B) = e(C,D)$ which is equivalent to $e(A,B)e(-C,D) = 1$
 * $e(E,F) = T$ for a given value $T \in \mathbb{G_t}$
+
 We could write directly:
 $$
 e(A,B)e(-C,D)e(E,F) == 1 * T <=> FE(ML((A,B),(-C,D),(E,F))) == T
@@ -534,6 +537,7 @@ $$
 e(A,B)e(-C,D)(e(E,F))^r == 1 * T^r  <=> e(A,B)e(-C,D)e(E^r,F) == T^r \\
 FE(ML((A,B),(-C,D)) * ML(E^r,F)) == T^r
 $$
+
 You can see here we scale the second check by $r$: the point $E$ is scaled by
 $r$ since it is much more efficient to do scalar multiplication in
 $\mathbb{G_1}$ than in $\mathbb{G_t}$. As well we split into two MillerLoop
