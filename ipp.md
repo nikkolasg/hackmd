@@ -77,7 +77,7 @@ The scheme is called GIPA for Generalized Inner Product Argument.
 
 
 ### Generalized Inner Product Argument (GIPA)
-$\newcommand{\mathbf}[1]{\mathbf{#1}}$
+
 Let's first see a small example to understand the principles behind GIPA.
 
 #### Example
@@ -476,6 +476,7 @@ This gave us **orders of magnitude faster verification.**
 #### Merging TIPP and MIPP
 
 As you can see, TIPP and MIPP are very similar except for the commitment scheme. Specifically, both $\mathbf{A}$ and $\mathbf{C}$ are committed with respect to the keys $\mathbf{v_1}$ and $\mathbf{v_2}$. Therefore, we can run **one GIPA loop for both TIPP and MIPP**. The crucial point here is to make sure the random challenge depends on both inputs from MIPP and TIPP. By re-using GIPA terminology, our random challenge at the $i$th iteration is now:
+As you can see, TIPP and MIPP are very similar except for the commitment scheme. Specifically, both $\mathbf{A}$ and $\mathbf{C}$ are committed with respect to the keys $\mathbf{v_1}$ and $\mathbf{v_2}$. Therefore, we can run **one GIPA loop for both TIPP and MIPP**. The crucial point here is to make sure the random challenge depends on both inputs from MIPP and TIPP. By re-using GIPA terminology, our random challenge at the $i$th iteration is now:
 $$
  x_i = Hash(TIPP(z_l,z_r,C_l,C_r),MIPP(z_l,z_r,C_l,C_r))
 $$
@@ -504,6 +505,9 @@ $$
 e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == 1
 $$
 This allows us to only perform one Miller loop and one FinalExponentation instead of two.
+
+
+
 
 The verification algorithm must verify up to 14 pairing checks. Instead of verifying all of them individually, our implementation only **performs the Miller loop step on each of them** and combine their results into one $\mathbb{Fp12}$ element. At the end of the verification routine, the **verifier only performs one FinalExponentation, instead of 14**. We were able to significantly gain hundreds of ms thanks to these optimizations. You can find the general logic in the `Accumulator` [struct](https://github.com/filecoin-project/bellperson/blob/feat-aggregation/src/groth16/aggregate/accumulator.rs). The reason why we are not doing one big MillerLoop with all the pairs, is because our MillerLoop implementation does not benefit from multithreading so after a certain input size, it is faster to operate two or more MillerLoop in parallel.
 
