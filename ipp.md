@@ -556,6 +556,11 @@ FinalExponentation, instead of 14**. We were able to significantly gain hundreds
 of ms thanks to these optimizations. You can find the general logic in the
 `PairingCheck` [struct](https://github.com/filecoin-project/bellperson/blob/feat-aggregation/src/groth16/aggregate/accumulator.rs).
 
+One important consideration here is to note that we need the randomness of the
+verifier to be sampled locally, and to be unpredictable in the sense the prover
+should not be able to guess what values the verifier is gonna use to aggregate
+the checks. In the implementation, verifier samples from `/dev/urandom`. 
+
 ## Conclusion
 
 We have now seen how can we prove an inner product in an efficient manner, and how this is used to aggregate Groth16 proofs. Our implementation is efficient and is being implemented in Filecoin (FIP 13 is [opened](https://github.com/filecoin-project/FIPs/blob/master/FIPS/fip-0013.md)!). If you're interested in learning more, have insightful comments and/or is interested in learning more about what we do at Protocol Labs research, check out our research [page](https://research.protocol.ai/) and contact us!
