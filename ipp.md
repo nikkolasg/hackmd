@@ -7,7 +7,9 @@ This post exposes the inner workings of SnarkPack, a practical scheme to aggrega
 **TLDR**: SnarkPack can aggregate 8192 proofs in 12sec, producing a proof which is 38x smaller in size and can be verified in 50ms, including serialization — 11x faster than batch verification. The scheme scales logarithmically, yielding an exponentially faster verification scheme than batching: the more you aggregate, the better.
 
 
-**Scope**: This post is not for experienced cryptographers; the goal is that anybody with a high school math level can follow easily. For a more formal description of the scheme, we refer to our [paper](..) (TODO link).
+**Scope**: This post is not for experienced cryptographers; the goal is that
+anybody with a high school math level can follow easily. For a more formal
+description of the scheme, we refer to our [paper](https://eprint.iacr.org/2021/529).
 
 [TOC]
 
