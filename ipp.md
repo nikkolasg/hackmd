@@ -261,8 +261,8 @@ Here the prover had access to $G^{\beta^2}$ from the Groth16 SRS which enabled h
 Here is its description:
 $$
 ck = (\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2}) \textrm{ where} \\
- \mathbf{V_1} = \{H^{\alpha^{i}}\}_{i=0}^{n-1}, \mathbf{V_2} =\{H^{\beta^{i}}\}_{i=0}^{n-1}) \\
-\mathbf{W_1} = \{G^{\alpha^{n + i}}\}_{i=0}^{n-1}, \mathbf{W_2} = \{G^{\beta^{n + i}}\}_{i=0}^{n-1}) \\
+ \mathbf{V_1} = \{H^{\alpha^{i}}\}_{i=0}^{n-1}, \mathbf{V_2} =\{H^{\beta^{i}}\}_{i=0}^{n-1} \\
+\mathbf{W_1} = \{G^{\alpha^{n + i}}\}_{i=0}^{n-1}, \mathbf{W_2} = \{G^{\beta^{n + i}}\}_{i=0}^{n-1} \\
 m = (\mathbf{A} \in \mathbb{G_1^n},\mathbf{B} \in \mathbb{G_2^n},\prod e(A_i,B_i) \in \mathbb{G_t})
 $$
 
@@ -378,7 +378,7 @@ We can actually combine multiple verifications, from differents proofs represent
 
 Let's define $\mathbf{r} = (1,r,r^2,r^3,\dots,r^{n-1})$ a structured vector from a random $r$ element. The **randomized verification equation** is:
 $$
-\prod e(A_i,B_i^{r_i}) = e(G^{\alpha \sum_{i=0}^{n-1} r^i} ,H^\beta)\cdot e(\prod_i S_i^{ \sum_{j=0}^{n-1} a_{i,j}},H^\delta) \cdot e(\prod_i C_i^{r^i}, H^{\delta })
+\prod e(A_i,B_i^{r_i}) = e(G^{\alpha \sum_{i=0}^{n-1} r^i} ,H^\beta)\cdot e(\prod_i S_i^{ \sum_{j=0}^{n-1} a_{i,j}*r^j},H^\delta) \cdot e(\prod_i C_i^{r^i}, H^{\delta })
 $$
 
 The left part is clearly a random linear combination since each $A_i$ is combined with a $B_i$ scaled by the corresponding $r_i$
@@ -399,7 +399,7 @@ Finally we are able to put all the pieces together! As you can see there are sim
 Indeed, the prover can prove the value $Z = \prod e(A_i,B_i^{r_i})$ via TIPP using the vectors $\mathbf{A}$ and $\mathbf{B^r}$! 
 Wait...where this $\mathbf{r}$ vector comes from ? Because we want this proof to be *non-interactive*, we can't ask the verifier to sample it. Instead, this $r$ is derived from the *commitments of the vectors* $\mathbf{A},\mathbf{B}$ and $\mathbf{C}$, using again the Fiat-Shamir heuristic. 
 $$
-r = Hash(CM_t(\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2},\mathbf{A},\mathbf{B}),CM_m(\mathbf{V_1},\mathbf{V_2},\mathbf{C})
+r = Hash(CM_t(\mathbf{V_1},\mathbf{V_2},\mathbf{W_1},\mathbf{W_2},\mathbf{A},\mathbf{B}),CM_m(\mathbf{V_1},\mathbf{V_2},\mathbf{C}))
 $$
 Note here the third component of the commitment scheme is excluded, since we only want to compute the commitment of the individual vectors, not to their product. See next section for understanding why.
 
@@ -514,7 +514,7 @@ points, then the FinalExponentiation on the result. We can easily then check if
 the result is "one":
 
 $$
-e(A,B)\cdot e(-C,D) == e(A,B)\cdot e(C,D)^{-1} == FE(ML((A,B),(-C,D))) == 1
+e(A,B)\cdot e(C^{-1},D) == e(A,B)\cdot e(C,D)^{-1} == FE(ML((A,B),(C^{-1},D))) == 1
 $$
 
 This allows us to only perform one Miller loop and one FinalExponentation
@@ -522,23 +522,23 @@ instead of two.
 
 We can actually generalize this trick to any number of pairing checks. Let's
 suppose we have the following checks to do:
-* $e(A,B) = e(C,D)$ which is equivalent to $e(A,B)e(-C,D) = 1$
+* $e(A,B) = e(C,D)$ which is equivalent to $e(A,B)e(C^{-1},D) = 1$
 * $e(E,F) = T$ for a given value $T \in \mathbb{G_t}$
 
 We could write directly:
 $$
-e(A,B)e(-C,D)e(E,F) == 1 * T <=> FE(ML((A,B),(-C,D),(E,F))) == T
+e(A,B)e(C^{-1},D)e(E,F) == 1 * T <=> FE(ML((A,B),(C^{-1},D),(E,F))) == T
 $$
 We can see here that we do only one miller loop and one final exponentiation !
 However, this would be **insecure** as the prover might be able to pick values $E$ and
-$F£ such that $e(A,B)e(-C,D)e(E,F) == T$ where the individual values don't
+$F£ such that $e(A,B)e(C^{-1},D)e(E,F) == T$ where the individual values don't
 satisfy the original equations we wanted to check !
 The usual way to solve this problem, as in the Groth16 aggregation, is to use a
 random linear combination ! We scale each pairing check by a random element $r$
 chosen by the verifier, during verification time:
 $$
-e(A,B)e(-C,D)(e(E,F))^r == 1 * T^r  <=> e(A,B)e(-C,D)e(E^r,F) == T^r \\
-FE(ML((A,B),(-C,D)) * ML(E^r,F)) == T^r
+e(A,B)e(C^{-1},D)(e(E,F))^r == 1 * T^r  <=> e(A,B)e(C^{-1},D)e(E^r,F) == T^r \\
+FE(ML((A,B),(C^{-1},D)) * ML(E^r,F)) == T^r
 $$
 
 You can see here we scale the second check by $r$: the point $E$ is scaled by
@@ -547,7 +547,7 @@ $\mathbb{G_1}$ than in $\mathbb{G_t}$. As well we split into two MillerLoop
 since it is not parallelizable so we prefer to run all these one in parallel and
 perform the FinalExponentiation at the end.
 Using such randomization, the attacker has a negligible probability of finding
-points that satisfy $e(A,B)e(-C,D) == e(E,F)^r$ since he doesn't know $r$ in
+points that satisfy $e(A,B)e(C^{-1},D) == e(E,F)^r$ since he doesn't know $r$ in
 advance - he never knows it, it's a locally generated random element by the
 verifier. 
 
